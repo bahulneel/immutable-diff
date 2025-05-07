@@ -48,5 +48,6 @@
   },
   "peerDependencies": {
     "immutable": ">=3 <6"
-  }
+  },
+  "types": "src/diff.d.ts"
 }
