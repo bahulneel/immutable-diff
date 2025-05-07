@@ -4,9 +4,9 @@
   "description": "Hi-Fi diffing for Immutable.js data structures, forked from immutablediff",
   "main": "lib/diff.js",
   "jsnext:main": "src/diff.js",
-  "types": "src/diff.d.ts",
+  "types": "diff.d.ts",
   "exports": {
-    "types": "./src/diff.d.ts",
+    "types": "./diff.d.ts",
     "default": "./src/diff.js"
   },
   "files": [
