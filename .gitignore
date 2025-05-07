@@ -31,3 +31,5 @@ build/Release
 node_modules/
 
 .idea/
+
+record-alias.d.ts
