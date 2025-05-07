@@ -1,5 +1,5 @@
 import diff from '../lib/diff'
-import { Record, Map as IMap, fromJS, is, List as IList } from 'immutable'
+import { Record, Map as IMap, fromJS, is } from 'immutable'
 import JSC from 'jscheck'
 import assert from 'assert'
 
@@ -45,7 +45,6 @@ describe('Record diff', function () {
     const a = Person({ name: 'Alice', age: 30 });
     const b = Employee({ name: 'Alice', age: 30, role: 'dev' });
     const result = diff(a, b);
-    const expected = fromJS([{ op: 'add', path: ['role'], value: 'dev' }]);
     assert.ok(result.some(change => change.get('op') === 'add' && change.get('path').includes('role')));
   });
 
@@ -106,4 +105,4 @@ describe('Record diff', function () {
       [JSC.string(), JSC.integer(), JSC.integer()]
     );
   });
-}); 
+});

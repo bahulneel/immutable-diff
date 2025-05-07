@@ -22,9 +22,10 @@
     "immutable",
     "diff"
   ],
-  "author": [
-    "Tim Griesser <tgriesser@gmail.com>",
-    "Intelie"
+  "author": "Tim Griesser <tgriesser@gmail.com>",
+  "contributors": [
+    "Intelie",
+    "Bahul Neel Upadhyaya <bahulneel@gmail.com>"
   ],
   "license": "MIT",
   "repository": {

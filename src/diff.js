@@ -1,8 +1,9 @@
-import { Map as IMap, Iterable, is, fromJS, Record as IRecord } from 'immutable'
+import * as Immutable from 'immutable'
 import { diff as lcsdiff } from './lcs'
 
-const { isMap } = IMap
-const { isIndexed } = Iterable
+const { Map: IMap, Iterable, is, fromJS, Record: IRecord } = Immutable
+let isMap = typeof IMap.isMap === 'function' ? IMap.isMap : Immutable.isMap
+let isIndexed = typeof Iterable.isIndexed === 'function' ? Iterable.isIndexed : Immutable.isIndexed
 
 function op(operation, path, value) {
   if (operation === 'remove') { return { op: operation, path: path } }
