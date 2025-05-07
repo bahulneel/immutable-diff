@@ -14,7 +14,10 @@
     "src",
     "tests",
     "npm-scripts",
-    "*.MD"
+    "*.MD",
+    "postinstall.js",
+    "record-alias-v3.d.ts",
+    "record-alias-v4.d.ts"
   ],
   "scripts": {
     "lint": "eslint src tests",
