@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16, 18, 20]
-        immutable-version: ['4', '5']
+        immutable-version: ['5', '4', '3']
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}

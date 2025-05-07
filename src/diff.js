@@ -5,6 +5,11 @@ const { Map: IMap, Iterable, is, fromJS, Record: IRecord } = Immutable
 let isMap = typeof IMap.isMap === 'function' ? IMap.isMap : Immutable.isMap
 let isIndexed = typeof Iterable.isIndexed === 'function' ? Iterable.isIndexed : Immutable.isIndexed
 
+function isRecordCompat(a) {
+  return a instanceof IRecord
+}
+let isRecord = typeof IRecord.isRecord === 'function' ? IRecord.isRecord : isRecordCompat
+
 function op(operation, path, value) {
   if (operation === 'remove') { return { op: operation, path: path } }
   return { op: operation, path: path, value: value }
@@ -134,7 +139,7 @@ function primitiveTypeDiff(a, b, path = []) {
 
 export default function diff(a, b, path) {
   // Explicit Record support
-  if (IRecord.isRecord(a) || IRecord.isRecord(b)) {
+  if (isRecord(a) || isRecord(b)) {
     return fromJS(recordDiff(a, b, path))
   }
   if (isIndexed(a) && isIndexed(b)) {
