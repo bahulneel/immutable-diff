@@ -1,12 +1,45 @@
-import {Map as IMap, Iterable, is, fromJS} from 'immutable'
-import {diff as lcsdiff} from './lcs'
+import { Map as IMap, Iterable, is, fromJS, Record as IRecord } from 'immutable'
+import { diff as lcsdiff } from './lcs'
 
-const {isMap} = IMap
-const {isIndexed} = Iterable
+const { isMap } = IMap
+const { isIndexed } = Iterable
 
 function op(operation, path, value) {
   if (operation === 'remove') { return { op: operation, path: path } }
   return { op: operation, path: path, value: value }
+}
+
+function recordDiff(a, b, path) {
+  var ops = [];
+  var aObj = a ? a.toObject() : {};
+  var bObj = b ? b.toObject() : {};
+  var aKeys = Object.keys(aObj);
+  var bKeys = Object.keys(bObj);
+  var allKeys = aKeys.slice();
+  bKeys.forEach(function (key) {
+    if (allKeys.indexOf(key) === -1) allKeys.push(key);
+  });
+
+  allKeys.forEach(function (key) {
+    var aHas = a && a.has && a.has(key);
+    var bHas = b && b.has && b.has(key);
+    var aVal = a && a.get ? a.get(key) : undefined;
+    var bVal = b && b.get ? b.get(key) : undefined;
+    if (aHas && bHas) {
+      if (isMap(aVal) && isMap(bVal)) {
+        ops = ops.concat(mapDiff(aVal, bVal, (path || []).concat(key)));
+      } else if (isIndexed(aVal) && isIndexed(bVal)) {
+        ops = ops.concat(sequenceDiff(aVal, bVal, (path || []).concat(key)));
+      } else if (!is(aVal, bVal)) {
+        ops.push(op('replace', (path || []).concat(key), bVal));
+      }
+    } else if (aHas && !bHas) {
+      ops.push(op('remove', (path || []).concat(key)));
+    } else if (!aHas && bHas) {
+      ops.push(op('add', (path || []).concat(key), bVal));
+    }
+  });
+  return ops;
 }
 
 function mapDiff(a, b, path = []) {
@@ -94,11 +127,15 @@ function primitiveTypeDiff(a, b, path = []) {
     return []
   }
   else {
-    return [ op('replace', path, b) ]
+    return [op('replace', path, b)]
   }
 }
 
 export default function diff(a, b, path) {
+  // Explicit Record support
+  if (IRecord.isRecord(a) || IRecord.isRecord(b)) {
+    return fromJS(recordDiff(a, b, path))
+  }
   if (isIndexed(a) && isIndexed(b)) {
     return fromJS(sequenceDiff(a, b))
   }
