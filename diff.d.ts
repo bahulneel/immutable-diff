@@ -1,5 +1,11 @@
 declare module 'immutable-diff' {
-  import { List, Map, Record as ImmutableRecord, Collection, Seq } from 'immutable';
+  import type {
+    List,
+    Map,
+    Record as ImmutableRecord,
+    Collection,
+    Seq,
+  } from 'immutable';
 
   export type DiffOp =
     | { op: 'add'; path: (string | number)[]; value: any }
@@ -27,4 +33,4 @@ declare module 'immutable-diff' {
     b: ImmutableType,
     path?: (string | number)[]
   ): DiffList;
-} 
+}
