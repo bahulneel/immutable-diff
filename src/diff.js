@@ -31,18 +31,32 @@ function recordDiff(a, b, path) {
     var bHas = b && b.has && b.has(key);
     var aVal = a && a.get ? a.get(key) : undefined;
     var bVal = b && b.get ? b.get(key) : undefined;
+    var nextPath = (path || []).concat(key);
     if (aHas && bHas) {
-      if (isMap(aVal) && isMap(bVal)) {
-        ops = ops.concat(mapDiff(aVal, bVal, (path || []).concat(key)));
+      // Handle nested Records
+      if (isRecord(aVal) && isRecord(bVal)) {
+        // For Immutable v5+, check Record names
+        var aName = aVal._name || aVal.constructor && aVal.constructor.name;
+        var bName = bVal._name || bVal.constructor && bVal.constructor.name;
+        if (aName && bName && aName !== bName) {
+          ops.push(op('replace', nextPath, bVal));
+        } else {
+          ops = ops.concat(recordDiff(aVal, bVal, nextPath));
+        }
+      } else if (isRecord(aVal) !== isRecord(bVal)) {
+        // One is a Record, the other is not
+        ops.push(op('replace', nextPath, bVal));
+      } else if (isMap(aVal) && isMap(bVal)) {
+        ops = ops.concat(mapDiff(aVal, bVal, nextPath));
       } else if (isIndexed(aVal) && isIndexed(bVal)) {
-        ops = ops.concat(sequenceDiff(aVal, bVal, (path || []).concat(key)));
+        ops = ops.concat(sequenceDiff(aVal, bVal, nextPath));
       } else if (!is(aVal, bVal)) {
-        ops.push(op('replace', (path || []).concat(key), bVal));
+        ops.push(op('replace', nextPath, bVal));
       }
     } else if (aHas && !bHas) {
-      ops.push(op('remove', (path || []).concat(key)));
+      ops.push(op('remove', nextPath));
     } else if (!aHas && bHas) {
-      ops.push(op('add', (path || []).concat(key), bVal));
+      ops.push(op('add', nextPath, bVal));
     }
   });
   return ops;

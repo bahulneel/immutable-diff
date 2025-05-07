@@ -105,4 +105,63 @@ describe('Record diff', function () {
       [JSC.string(), JSC.integer(), JSC.integer()]
     );
   });
+
+  it('returns empty diff when both Records use only defaults', function () {
+    const Person = Record({ name: 'Alice', age: 30 });
+    const a = Person();
+    const b = Person();
+    const result = diff(a, b);
+    assert.deepStrictEqual(result.toJS(), []);
+  });
+
+  it('returns replace op when a default field is overridden', function () {
+    const Person = Record({ name: 'Alice', age: 30 });
+    const a = Person();
+    const b = Person({ age: 31 });
+    const result = diff(a, b);
+    assert.ok(result.toJS().some(change => change.op === 'replace' && change.path.includes('age')));
+  });
+
+  it('returns add op when a field is omitted in one Record but present in the other', function () {
+    const Person = Record({ name: 'Alice', age: 30 });
+    const a = Person({ name: 'Alice' }); // age omitted, uses default
+    const b = Person({ name: 'Alice', age: 35 });
+    const result = diff(a, b);
+    assert.ok(result.toJS().some(change => change.op === 'replace' && change.path.includes('age')));
+  });
+
+  it('returns remove op when a field is set to undefined (removes override, reverts to default)', function () {
+    const Person = Record({ name: 'Alice', age: 30 });
+    const a = Person({ name: 'Alice', age: 35 });
+    const b = Person({ name: 'Alice', age: undefined }); // should revert to default
+    const result = diff(a, b);
+    assert.ok(result.toJS().some(change => change.op === 'replace' && change.path.includes('age')));
+  });
+
+  it('returns empty diff when nested Records use only defaults', function () {
+    const Address = Record({ city: 'NYC', zip: '10001' });
+    const Person = Record({ name: 'Alice', address: Address() });
+    const a = Person();
+    const b = Person();
+    const result = diff(a, b);
+    assert.deepStrictEqual(result.toJS(), []);
+  });
+
+  it('returns replace op when a nested default field is overridden', function () {
+    const Address = Record({ city: 'NYC', zip: '10001' });
+    const Person = Record({ name: 'Alice', address: Address() });
+    const a = Person();
+    const b = Person({ address: Address({ city: 'LA' }) });
+    const result = diff(a, b);
+    assert.ok(result.toJS().some(change => change.op === 'replace' && change.path.includes('address') && change.path.includes('city')));
+  });
+
+  it('returns replace op when a nested field is reverted to default', function () {
+    const Address = Record({ city: 'NYC', zip: '10001' });
+    const Person = Record({ name: 'Alice', address: Address() });
+    const a = Person({ address: Address({ city: 'LA', zip: '10001' }) });
+    const b = Person(); // address uses all defaults
+    const result = diff(a, b);
+    assert.ok(result.toJS().some(change => change.op === 'replace' && change.path.includes('address') && change.path.includes('city')));
+  });
 });
